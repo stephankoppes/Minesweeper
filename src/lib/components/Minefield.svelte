@@ -2,6 +2,11 @@
     Easy mode     :  8 x 8   10 mines
     Advanced mode : 16 x 16  40 mines
     Pro mode      : 30 x 16  99 mines
+
+    Colors
+    Unclicked cells : rgb(211, 211, 211) (lightgray)
+    Clicked cells   : rgb(123, 163, 239) (light blue)
+
 -->
 
 <script lang="ts">
@@ -15,17 +20,17 @@
   import Seven from "$lib/assets/svg-five.svelte";
   import Eight from "$lib/assets/svg-five.svelte";
   
-  let fieldCols = 8;
-  let fieldRows = 8;
+  let fieldCols = 8;    // X-col axis
+  let fieldRows = 12;   // Y-row axis
   let birdsTotal = 10;
   let adjacentBirds = 0;
   let birdLocations = CreateBirdLocations(fieldCols, fieldRows, birdsTotal);
 
-  function ShowId(idName: string) {
-    console.log(`You clicked cell ${idName}`);
+  function ShowCell(x: number, y: number) {
+    console.log(`You clicked cell X:${x} Y: ${y}`);
   }
 
-  function CreateBirdLocations(maxCol: number, maxRow: number, totalBirds: number) {
+  function CreateBirdLocations(maxRow: number, maxCol: number, totalBirds: number) {
     let data: Array<{ x: number; y: number }> = [];
     for (let i = 0; i < totalBirds; i++) {
       let unique = false;
@@ -42,7 +47,6 @@
   }
 
   function FindAdjacentBirds(x: number, y: number) {
-    // TO DO: Create function to find number of adjacent birds
     let count = 0;
     
     // Check row (x) above
@@ -74,11 +78,17 @@
         <div class="row">
           {#each { length: fieldCols }, col}
             <div class="cell">
-              <button class="minefield-button" id="{row}-{col}" onclick={() => ShowId(`${row}-${col}`)}>
-                {#if birdLocations.some(bird => bird.x == row && bird.y == col)}
+              <button class="cell-button" id="{row}-{col}" onclick={() => ShowCell(col, row)}>
+                <!-- {#if !cellClicked}
+                  <div class="cell-unclicked">No</div>
+                {:else}
+                  <div class="cell-clicked">yes</div>
+                {/if} -->
+                
+                {#if birdLocations.some(bird => bird.x == col && bird.y == row)}
                   <Bird />
                 {:else}
-                  {@const adjacentBirds = FindAdjacentBirds(row, col)}
+                  {@const adjacentBirds = FindAdjacentBirds(col, row)}
                   {#if adjacentBirds == 1}
                     <One />
                   {:else if adjacentBirds == 2}
@@ -95,6 +105,8 @@
                     <Seven />
                   {:else if adjacentBirds == 8}
                     <Eight />
+                  {:else}
+                    <div class="cell-clicked"></div>
                   {/if}
                 {/if}
               </button>
@@ -140,20 +152,24 @@
     width: 60px;
     border: 1px solid bisque;
     background-color: rgb(123, 163, 239);
-    color: white;
     align-items: center;
     justify-content: center;
   }
 
-  /* .field-number {
-    font-family: Verdana, sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-  } */
+  .cell-unclicked {
+    height: 54px;
+    width: 54px;
+    background-color: rgb(211, 211, 211);
+  }
 
-  .minefield-button {
+  .cell-clicked {
+    height: 54px;
+    width: 54px;
+    background-color: rgb(123, 163, 239);
+  }
+
+  .cell-button {
     background-color: transparent;
     border: 0;
-
   }
 </style>
